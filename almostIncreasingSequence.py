@@ -1,4 +1,6 @@
+# my solution
 def almostIncreasingSequence(sequence):
+
     def increasingSequence(sequence):
         
         for i in range(len(sequence) - 1):

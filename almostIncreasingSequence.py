@@ -1,4 +1,4 @@
-# my solution
+# my cool solution
 def almostIncreasingSequence(sequence):
 
     def increasingSequence(sequence):

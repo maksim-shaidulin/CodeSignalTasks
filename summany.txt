@@ -1,0 +1,541 @@
+Типы
+    Изменяемые (mutable)
+        копирование через copy.copy и copy.deepcopy.
+            copy - поверхностная копия. Скопирует только верхний слой. Списки внутри списков не будут скопированы.
+            deepcopy - работа с контейнерами. Копирует сам объект, затем смотрит рекунсивно на всё
+                куда ссылается объект и вызывет им deepcopy
+
+        list список - [] or list(). mutable (not hashable), ordered.
+            funtions: append(v), index(x), reverse(), count(v), remove(v), clear(), pop(), extend()
+            slices: (start inclusive, stop exclusive, step could be negative)
+            list[::-1] returns reversed list
+            for i, v = enumerate(list)
+            list.sort(reverse=False) sorts in place
+            sorted(list, reverse=False) returns list
+            reversed(list) returns list
+
+        dict словарь - dict(), {}, {key : value}, mutable, key is hashable object, unordered. Quick constant access time
+            mydict.get('value', 'not found')
+            value in mydict
+            mydict['newkey'] = value
+            del mydict['newkey']
+            mydict.update( { key : value } )   # add new dict
+            mydict.pop(key)                    # delete end return value
+            mydict.setdefault(key, value)      # upsert
+
+            for k in mydict               # by keys
+            for k, v in mydict.items()    # by keys and values
+            for v in mydict.values()      # by values
+            
+
+        OrderedDict - ordered variant of dict ???
+                "from collections import OrderedDict" for OrderedDict
+
+        множество set(), {1,2,3,4} - unordered set of unique objects, mutable. Each object has a hash, so only immutable items are allowed 
+            Usually for removing duplicates and check for exists. Quick constant time to check exists (val in set)
+            remove(value) 
+            add()
+            pop() deletes and return random value 
+            Math operations
+            a = set([1,2,3])
+            b = set()
+            b.update([2, 3, 4])
+            a | b = {1, 2, 3, 4}   # a.union(b)
+            a & b = {2, 3}         # a.intersection(b)
+            a - b = {1}            # a.difference(b)
+            b - a = {4}            # b.difference(a)
+            a ^ b = {1, 4}         # a.symmetric_difference(b)
+
+    Неизменяемые immutable
+        присваивание y=x. создать новый указатель на ссылку. Для неизменяемых смысла нет копировать данные. 
+        frozerset() the same as set, but immutable
+
+        tuple кортеж, tuple() или (val1, val2). immutable list (hashable)
+            one element tuple: (elem,)
+        int
+        float
+        complex
+        bool
+        str
+
+FUNCTIONS
+def func(val: val_type) -> return_type:
+
+def func(*args) - tuple with any arguments
+    nums = [1,2,3]
+    func(*nums) = func(1, 2, 3)
+
+def func(**kargs) - dict with any arguments
+    func(a=10, b=20)
+    my_famaly={
+        'name':'Maksim',
+        'relative': {
+            'child1': 'Polina',
+            'child2': 'Uliana'
+        }
+    }
+    func(**my_famaly)
+
+Map
+    map(function_name, iterator)
+    def myf(n):
+        return n ** 2
+    print(list(map(myf, range(10))))   # [0, 1, 4, 9, 16]
+
+Filter
+    filter(function_name, iterator)
+    def is_positive(n):
+        return a > 0
+    list(filter(is_positive, range(-2, 3)))  # [1, 2]
+
+Lambda
+    anonymous functions
+    list(map(lambda x: x ** 2, range(10)))   # [0, 1, 4, 9, 16]
+    list(filter(lambda x: x > 0, range(-2, 3)))  # [1, 2]
+
+functools
+    from functools import reduce
+    reduce(labda x, y: x * y, range(6))
+
+partial
+    redefine functions
+    from functools import partial
+    def greeting(name, greeting):
+        print(f'{greeting}, {name}!')
+    bonj = partial(greeting, greeting='Bonjorno')
+    print(bonj('Steeve'))  # Bonjorno, Steeve!
+
+Comprehensive
+    list: [x ** 2 for x in range(5) if (x != 2 and x != 3)]   # [0, 1, 16]
+    dict: { x: x**2 for x in range(5) }   # {0: 0, 1: 1, 2: 4, 3: 9, 4: 16}
+    set:  {n % 5 for n in range(50) }    # {0, 1, 2, 3, 4,}
+
+zip - zip(*iterables) --> zip object
+    a=[1,2,3]
+    b=[4,5,6]
+    list(zip(a,b))   # [(1, 4), (2, 5), (3, 6)]
+
+Decorator - a function which get function and return function
+    @decor
+    def func()
+    ===
+    func = decor(func)
+
+    See logger.py
+    def logger(func):
+        def wrapped(*args, **kwargs):
+            result = func(*args, **kwargs)
+            with open('log.txt', 'w') as f:
+                f.write(result)
+            return result
+        return wrapped
+    @logger
+    def summ(a, b):
+      return a+b
+
+      @first
+      @second
+      def func()
+      ===
+      func = first(second(func))
+
+Generators - generates values using "yield item", 
+    stop on this state, wait next occurs. Saves all local variables
+    (coroutines consumes values with "item = yield")
+    
+        def even_range(start, stop):
+            current = start
+            while current < stop:
+                print(f'current {current}')
+                yield current
+                current += 2
+
+        for i in even_range(0, 4):
+            print(i)
+        
+        a=even_range(0,4)
+        next(a)            # 0
+        next(a)            # 2
+        next(a)            # StopIteration exception
+
+Iterators
+    range()
+    iterator = iter([1,2,3])
+    next(iterator)
+
+    class OwnIterator:
+        def __init__(self, end):
+            self.current = 0
+            self.end = end
+
+        def __iter__(self):
+            return self
+        def __next__(self):
+            if self.current >= self.end:
+                raise StopIteration
+            result = self.current ** 2
+            self.current += 1
+            return result
+    for i in OqnIterator(5):
+        print(i)
+Class
+    @classmethod relates to CLASS, not instance
+        # create instance of cls. Usage: Planet.from_string(str)
+        @classmethod
+        def from_string(cls, user_input):
+            return cls(params)
+
+    @staticmethod - without class or instance
+        def is_ok(age):
+            return 0 < age < 150
+    
+        Human.is_ok(100)   # True
+
+    property() - redefine behavior
+        def __init__(self, power):
+            self._power = power
+
+        power = property()
+        @power.setter
+        def power(self, value):
+            self._power = 0 if value < 0 else value
+        
+        @power.getter
+        def power(self):
+            return self._power
+        @power.deleter
+        def power(self):
+            print('deleting')
+            del self._power
+
+    @property - decorator for getter
+        @property
+        def power(self):
+            # calculate something
+            return self._power
+
+    __mro__ - method resolution order, where to find class attributes, this is list []
+
+Exceptions - slows down the speed, too expensive for often use
+    try...except...else...finally
+        try:
+        raise ValueError("invalid", "param")
+        except ValueError as err:
+            print(f'ValueError {err.args[0]} {err.args[1]}')
+        except ZeroDivisionError as err:
+            print('ZeroError')
+            raise TypeError('error) from err       # to forward exception (delegate) and keep original stacktrace
+        except OSError as err:
+            import traceback
+            trace = traceback.print_exc()
+            print(trace)
+        except(FirstError, SecondError):
+            <code>
+        except ParentForFirstErrorAndSecondError):
+            <code>
+        else:
+            # if not exception is raised
+        finally:
+            # code to run in any case, useful to close file descrioptions (better to use Context Managers)
+
+    assert isinstance(int, value), 'not an integer'
+        python -O my.py   # to not raise AssetionError
+
+
+    %%timeit is a ipython extension 
+
+Magic methods
+    __init__, 
+    __new__() - on create instance
+        class Singleton:
+            instance = None
+            def __new__(cls):
+                if cls.instance is None:
+                    cls.instance = super().__new__(cls)
+                return cls.instance
+    __del__ - garbage collector(!) but not when we run del obj
+    __str__(self):   # used for print()
+        return f'{self.name} {self.surname}'
+    __hash__(self):  # for python it will be the same object, impossible to add two objects with the same hash to set()
+        return hash(self.email)
+    __eq__(self, obj):   # ==
+        return self.email == obj.email
+    
+    __getattr__(self, attrname):  # what to do if attribute not found: print(cls.FYGR) -> Nothing found
+        print(f'{attrname} does not exist, but let create it!')
+        if attrname == 'age':
+            return 40
+        else:
+            raise AttributeError, attrname
+        # return "Nothing found"
+
+    __getattribute__(self, attrname):  # always calls on get attribute. could be used for logging
+        print(f'getting {attrname}')
+        return object.__getattribute__(self, attrname)
+
+    __delattr__(self, attrname):   # calls on delete. Usage: reject deletion, cascade deletion 
+        value = getattr(self, attrname)
+        print(f'Bye-bye {attrname}, you were {value}!')
+        object.__delattr__(self, attrname)
+    
+    __setattr__(self, attrname, attrvalue):
+
+    __add__/__sub__
+
+    __slots__ = [] - list of allowed methods of class
+Context Managers
+    useful to close resources, or rollback transactions
+    with open() as f:   # will close at the end of the with block
+
+    class open_file:
+        def __init__(self, fname, mode):
+            self.f = open(fname, mode)
+        __enter__(self):   # get object to work on, f
+            return self.f
+        __exit__(self, *args):
+            f.close()
+    with open_file('log.txt', 'w') as f:
+        f.write('lalala')
+
+    
+    class suppress_exception:
+        def __init__(self, exc_type):
+            self.exc_type = exc_type
+        def __enter__(self):
+            return
+        def __exit__(self, exc_type, exc_value, traceback):
+            if exc_type = self.exc_type:
+                print('Nothin serious')
+                return True     # mandatory for exception, otherwise program will stop
+    with suppress_exception(ZeroDivisionError):
+        num = 1/0
+    # Nothin serious is printed
+    import contextlib
+    with contextlib.suppress(ValueError):
+        raise ValueError 
+
+Descriptors: 
+    to redefine the behavior. __set__ + __del__ - data desriptor, only __get__ - non-data descriptor
+    could be used to replicate the values somewhere (importand data)
+
+        class Descriptor:
+            def __init__(self):
+                self.value = None
+            def __get__(self):
+                return self.value
+            def __set__(self, obj, value):
+                self.value = value * 10
+            def __delete__()
+
+        class Class:
+            attr = Descriptor()
+        inst = Class()
+        inst.attr = 10   # 20
+
+Metaclass - class can create another classes. 'type' is a base metaclass for other classes
+    NewClass = type('NewClass', (), {})    # create new class on the fly - UNUSUAL
+
+        class Meta(type):   # metaclass is inherited from another metaclass
+            def __new__(cls, name, parents, attrs):
+                print(f'Creating {name}')
+                attrs['class_id'] = lower(name)
+                super().__new__(cls, name, parents, attrs)
+        
+        class AAA(metaclass=Meta)
+            pass
+        # prints "Creating AAA"
+        AAA.class_id = "aaa"
+
+Abstract methods: subclasses MUST implement abstract methods: RARE USAGE
+        from abc import ABCMeta, abstractmethod
+        class Sender(metaclass=ABCMeta):
+            @abstractmethod
+            def send(self):
+                # do something
+        class S(Sender):
+            def send(self):
+                print()
+
+        MORE COMMON WAY:
+        class Sender():
+            def send(self):
+                raise NotImplementerError
+
+Coroutine (сопрограммы)  # потребляет значения (а генераторы производят значения)
+    line = yield   # function stops and waits someone call f.send('line')
+        def grep(pattern):
+            print('start grep')
+            try:
+                while True:
+                    line = yield
+                    if pattern in line:
+                        print(line)
+            except GeneratorExit:
+                print('stop grep')
+        g = grep('banana')
+        next(g)   # g.send(None)
+        start hrep
+        # here we call grep() and stop on yield
+        g.send('orange')
+        g.send('banana')
+        # banana
+        s.stop()   # stop coroutine
+        # stop grep
+
+    yield from coroutine - delegate calling coroutine from casual function. PEP 0380
+        def coroutine_wrapper():
+            g = grep('banana')
+            yield from g
+
+        g = coroutine_wrapper()
+        g
+        # <generator ... >
+        g.send(None)
+        # start grep
+        g.send('banana')
+        # banana
+
+    yield could be used to delegate standard Iterators
+        def chain(x_iterable, y_iterable):
+            yield from x_iterable   # pass to iterable object
+            yield from y_iterable
+        
+            # the same as we do ourself:
+            # for x in x_iterable:
+            #     yield x
+            # for y in y_iterable:
+            #     yield y
+
+        a = [1, 2, 3]
+        b = (4, 5)
+        for x in chain(a, b):
+            print(x)
+        # 1
+        # 2
+        # 3
+        # 4
+        # 5
+
+asyncio - the most modern framework to work in single thread
+
+Algorythms complexity
+    O(1) - константная, сложность порядка 1, константное время. Время не зависит от размера данных. a[x]
+    2^x = 256  
+    log2(256) = х  - логарифм по основанию 2 от 256
+    O(log n) - логарифмическая, бинарный поиск в отсортированном массиве, делить на два,
+               сравнение больше-меньше, делить оставшийся кусок и т.д.
+    O(n), О(N + M) - линейная сложность порядка n, линейное время. sum([]), один цикл перебора всех элементов
+    полиномиальные:
+        O(n * log n) - линейно-арифметический, сортировка слиянием
+        O(n^2) - квадратичная сложность, два вложенный цикл по массиву, пузырьковая сортировка
+        О(n^3) - кубическая
+        O(n * m)
+    О(2^n) - экспоненциальная сложность, NP полные задачи, сравнение каждого с каждым
+
+Сортировки: https://visualgo.net/ru/sorting
+    O(n^2):
+        bubble пузырьком: элементы сравниваются друг с другом, всплывают, O(n^2) по скорости, О(1) по памяти
+        selection sort
+        insertion sort
+    O(N*log N)
+        merge слиянием: делим на мелкие части, сравниваем два элемена, меняем, затем объединяем. Память O(N)
+        quick 
+    O(N) - non comparison based
+        counting - выделить память под все числа от 0 до max(n). Цикл по n, увеличивать счетчик каждого числа
+                вторым проходом по к числам вывести всё.
+                [1, 1, 4, 1, 1] = {0: 0, 1: 4, 2: 0, 3:1} - число 1 встречается 4 раза 
+        radix
+
+
+Design patterns - концепции, типичные способы решения часто встречающихся задач при проектировании программ.
+    Проверенные решения, стандартный код,
+    Идиомы - низкоуровневые, реализованы в конкретном языке, например list comprehensive
+    Архитектурные - выше отдельных компонентов.
+
+    Порождающие - удобное и безопасное создание новых объектов или семейство объектов
+        Factory method/Фабричный метод - определяет общий интерфейс для создания объектов в суперклассе,
+            позволяя подклассам изменять тип создаваемых объектов
+            Когда заранее неизвестен тип и зависимости объектов
+            Для расширения пользователями вашего фрейворка или библиотеки
+            + нет привязки к конкретным классам продуктов, код производства продуктов в одном месте, просто добавить новые продукты,
+            - большая параллельная иерархия классов
+
+        Abstract Factory/Абстрактная фабрика - работа с разными видами связанными друг с другом продуктов, не завися от конкретных классов.
+            GUI в разных ОС. АФ GUIFactory реализует абстрактный интерфейс create_button(). Конкретные реализации WindowsFactory
+            Сложнее чем Фабричный метод 
+            Плюсы: избавляет клиентский код от привязки к конкретным классам продуктов, код производства продуктов в одном месте (легче поддержка)
+                упрощает добавление новых продуктов
+            Минусы: усложняет код, много дополнительных классов, должны реализованы все продукты всех типов
+
+        Builder/Строитель - собирает объект по шагам.
+            + избавляет от конструктора с большим количеством параметров
+            - лишние классы, конкретные классы в коде
+
+        Prototype/Прототип - позволяет копировать объекты, не вдаваясь в подробности реализации.
+            Обычно интерфейс реализует один метод clone(), и сам объект клонирует себя, так как знает как он сам устроен
+            Оригинальный объект называют Прототипом. В Питоне реализован интерфейсом Cloneable, для этого нужно создать свои магические методы
+            __copy__(), __deepcopy__()
+
+        Singleton/Одиночка - существует только один экземпляр с глобальной точкой доступа
+            Нужен там, где нужен один объект, типа один экземпляр БД, одна конфигураци. В отличии от глобальных методов, Одиночку не изменить из кода.
+            Конструктор скрыт, вместо него используется getInstance(){ if self.instance == None: instance=Singleton()}
+            Не очень хороший паттерн, скрывает плохой дизайн, нет единой ответственности. Внимание к многопоточности, может сломаться.
+
+    Структурные - удобные в поддержке иерархии классов
+        Adapter/Адаптер - позволяет совместить объекты с несовместимыми интерфейсами. Пример - переходник для розеток.
+            Объект-переводчик, трансформирует интерфейс или данные одного объекта так, чтобы стало понятно другому.
+            Адаптер оборачивает один  из объектов, так что другой даже не знает о его существовании.
+            Адаптер оборачивает объект, работающий в метрах, и выдает размеры в футах.
+
+        Bridge/Мост - отделить абстракцию от реализации.
+            Есть фигуры (круги, квадраты), есть цвета (синий, зеленый). Вместо создания СинийКруг, ЗеленыйКвадрат,
+            сделать вторую иерархию Цвета. И в объекте Фигура иметь ссылку на конкретный Цвет. Клиентский код общается только с абстракцией.
+            Дистанционные Пульты (абстракция) и Приборы (реализация). В Пульте есть ссылка на Прибор.
+            Когда класс нужно расширять в двех независимых плоскостях (отдельная иерархия). Бонус - можено менять реализацию в рантайме, как Стратегия.
+
+        Composite/Компоновщик - когда нужно представить древовидную структуру объектов. Простые и составные объекты. Ветки и листья.
+            Коробки могут содержать продукты и коробки поменьше. Если нужно узнать цену, спросить у верхней коробки. Она сама спросит у своих детей.
+
+        Decorator/Декоратор (обертка)- позволяет динамически добавлять объектам новую функциональность, оборачивая их в "обертки"
+            В классе-обертке хранится ссылка на оригинальный объект. def __init__(self, obj): self._obj = obj.
+            Затем надо все методы переопределить как вызов оригинального объекта: def do(self, something): self.job.do(something).
+        Facade/Фасад - простой интерфейс к сложной системе/библиотеке/фреймворку. Показывает наружу только ту функциональность,
+            которые нужна. Остальные скрывает.
+
+        Flyweight/Легковес (приспособленец, кэш) - позволяет вместить бОльшее количество объектов в память, экономит память, разделяя общее
+            состояние объектов между собой, вместо хранения одинаковых данных в каждом объекте.
+            Неизменяемые данные объекта - внутреннее состояние (спрайт пули в игре, ее цвет). 
+            Все остальное - внешнее состояние, контекст (траектория, скорость, координаты)
+            Легковесные объекты неизменяемые. Всё внутреннее состояние передается через конструктор, нет публичных полей или сеттеров.
+
+        Proxy/Заместитель - позволяет подставлять вместо реальеых объектов специальные заменители. Они перехватывают
+            вызовы к оригинальному объекту, позволяя что-то сделать до или после вызова
+
+    Поведенческие, изменяют поведение, удобное взаимодействие между объектами 
+        Chain of Responsibility/Цепочка обязанностей (CoR, Chain of Command) - передает запросы по цепочке обработчиков. Каждый обработчик 
+            сам решает, может ли он обработать запрос сам, и надо ли передать запрос дальше по цепочке.
+        Command/Команда (Действие, Транзакция, Action) - превращает запросы в объекты, позволяя передавать их как аргументы при вызове методов,
+            ставить запросы в очередь, логгировать, и таже отменять. Для отмены можно сохранить объект, который изменяет команда, в теле самой команды,
+            чтобы потом его просто восстановить.
+        Iterator/Итератор - обход коллекции без раскрытия ее реализации.
+            __next__(), raise StopIteration()
+        Mediator/Посредник (Intermeriary, Controller) - объекты взаимодействую с посредником, а не друг с другом. Тогда можно переиспользовать объекты.
+            Все связи в одном объекте-посреднике.
+        Memento/Снимок - сохранять и восстанавливать состояния объектов.
+
+        Observer/Наблюдатель (Издатель-Подписчик, Слушатель). Механизм подписки позволяет одним объектам следить и реагировать на события, происходящие в других объектах
+            Пример: покупатель и магазин (реклама). Подписка на журналы.
+            Издатель имеет attach(), detach() и notify(). Подписчики реализуют интерфейс update(). При добавлении подписчика издателю он добавляется в список.
+            При бизнес логике вызывается notify() в котором по циклу у всех подписчиков вызывает update()
+
+        State/Состояние - draft-moderate-publish. Делегирование переход между состояниями самим состояниям
+            Контекст хранит объект Состояние. Состояние имеет интерфейс. Конкретное состояние реализует поведение
+            контекста в зависимости от состояния. Состояние может иметь обратную ссылку на объект контекста.
+            Для изменения состояния нужно в объект контекста передать новый объект состояния.
+            Когда удобно: поведение контекта значительно меняется в зависимости от состояния, состояний много и они изменяются.
+
+        Strategy/Стратерия - лямбда функция? семейство схожишь алгоритмов выделяют каждый в собственный класс. Затем их можно заменять на лету в объекте контекста.
+            Алгоритм прокладки маршрута в навигаторе: авто, пеший, поезда. В навигаторе хранится объект-стартегия. Все стратегии используют общий интерфейс.
+        Template method/Шаблонный метод - определяет скелет алгоритма, перекладывывая ответственность за некоторые шаги на подклассы.
+            Позволяем подклассам переопрелелять шаги, не меняя общей структуры.
+        Visitor/Посетитель - добавление новых операций без изменения класса объектов, надо которыми эти операции выполняются.

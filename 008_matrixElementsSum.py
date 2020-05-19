@@ -1,2 +1,0 @@
-def matrixElementsSum(matrix):
-    pass

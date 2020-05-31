@@ -1,3 +1,5 @@
+https://wiki.python.org/moin/TimeComplexity
+
 Типы
     Изменяемые (mutable)
         копирование через copy.copy и copy.deepcopy.
@@ -28,7 +30,7 @@
             for v in mydict.values()      # by values
             
 
-        OrderedDict - ordered variant of dict ???
+        OrderedDict - ordered variant of dict ??? С какой-то версии питона обычный dict стал хранить значения в порядке добавления.
                 "from collections import OrderedDict" for OrderedDict
 
         множество set(), {1,2,3,4} - unordered set of unique objects, mutable. Each object has a hash, so only immutable items are allowed 
@@ -50,13 +52,23 @@
         присваивание y=x. создать новый указатель на ссылку. Для неизменяемых смысла нет копировать данные. 
         frozerset() the same as set, but immutable
 
-        tuple кортеж, tuple() или (val1, val2). immutable list (hashable)
-            one element tuple: (elem,)
+        tuple кортеж - immutable sequence (hashable)
+            constructor:
+                ()
+                elem, or (elem,)
+                (val1, val2)
+                tuple() or tuple(iterable) - iterable is sequence, container that supports iteration, or iterator
+            collections.namedtuple() allows to acces via name, not only by index
         int
         float
         complex
         bool
         str
+
+    Basic sequence types: list, tuple and range objects
+        x in s
+        x not in s
+        
 
 FUNCTIONS
 def func(val: val_type) -> return_type:
@@ -109,40 +121,15 @@ Comprehensive
     list: [x ** 2 for x in range(5) if (x != 2 and x != 3)]   # [0, 1, 16]
     dict: { x: x**2 for x in range(5) }   # {0: 0, 1: 1, 2: 4, 3: 9, 4: 16}
     set:  {n % 5 for n in range(50) }    # {0, 1, 2, 3, 4,}
-
+    generator: (x+1 for x in range(0, 10, 5))
 zip - zip(*iterables) --> zip object
     a=[1,2,3]
     b=[4,5,6]
     list(zip(a,b))   # [(1, 4), (2, 5), (3, 6)]
 
-Decorator - a function which get function and return function
-    @decor
-    def func()
-    ===
-    func = decor(func)
-
-    See logger.py
-    def logger(func):
-        def wrapped(*args, **kwargs):
-            result = func(*args, **kwargs)
-            with open('log.txt', 'w') as f:
-                f.write(result)
-            return result
-        return wrapped
-    @logger
-    def summ(a, b):
-      return a+b
-
-      @first
-      @second
-      def func()
-      ===
-      func = first(second(func))
-
-Generators - generates values using "yield item", 
-    stop on this state, wait next occurs. Saves all local variables
+Generators генераторы - generates values using "yield item", 
+    stop on this state, wait next occurs. Saves all local variables to stack
     (coroutines consumes values with "item = yield")
-    
         def even_range(start, stop):
             current = start
             while current < stop:
@@ -153,14 +140,23 @@ Generators - generates values using "yield item",
         for i in even_range(0, 4):
             print(i)
         
-        a=even_range(0,4)
+        a = even_range(0,4)
         next(a)            # 0
         next(a)            # 2
         next(a)            # StopIteration exception
 
-Iterators
+    Генераторы истощаются, то есть после создания генератора можной пройти только один раз
+        >>> a = even_range(0, 4)
+        >>> list(a)
+        [0, 2]
+        >>> list(a)
+        []
+Iterable - итеритуемые, упорядоченный набор объектов, элементы которого можно получать по одному
+Iterator - объект который позмоляет по этим данным двигатся. 
+        Есть только одна функция __next__(). Она бросает исключение StopIteration когда поток данных закончился
+        
     range()
-    iterator = iter([1,2,3])
+    iterator = iter([1,2,3]), iter() принимает iterable объект
     next(iterator)
 
     class OwnIterator:
@@ -176,8 +172,18 @@ Iterators
             result = self.current ** 2
             self.current += 1
             return result
-    for i in OqnIterator(5):
+
+    for i in OwnIterator(5):
         print(i)
+    или
+    print(list(OwnIterator(5)))
+
+Sequences последовательности - упорядоченный набор объектов, к элементам которого можно обращаться по индексу
+    __len__ - длина
+    __getitem__ - для индексов
+
+    Примеры: list, tuple, str
+
 Class
     @classmethod relates to CLASS, not instance
         # create instance of cls. Usage: Planet.from_string(str)
@@ -280,9 +286,10 @@ Magic methods
     
     __setattr__(self, attrname, attrvalue):
 
-    __add__/__sub__
+    __add__/__sub__/__mul__/__div__
 
     __slots__ = [] - list of allowed methods of class
+
 Context Managers
     useful to close resources, or rollback transactions
     with open() as f:   # will close at the end of the with block
@@ -499,6 +506,31 @@ Design patterns - концепции, типичные способы решен
         Decorator/Декоратор (обертка)- позволяет динамически добавлять объектам новую функциональность, оборачивая их в "обертки"
             В классе-обертке хранится ссылка на оригинальный объект. def __init__(self, obj): self._obj = obj.
             Затем надо все методы переопределить как вызов оригинального объекта: def do(self, something): self.job.do(something).
+    
+            Decorator - a function which get function and return function
+            @decor
+            def func()
+            ===
+            func = decor(func)
+
+            See logger.py
+            def logger(func):
+                def wrapped(*args, **kwargs):
+                    result = func(*args, **kwargs)
+                    with open('log.txt', 'w') as f:
+                        f.write(result)
+                    return result
+                return wrapped
+            @logger
+            def summ(a, b):
+            return a+b
+
+            @first
+            @second
+            def func()
+            ===
+            func = first(second(func))
+
         Facade/Фасад - простой интерфейс к сложной системе/библиотеке/фреймворку. Показывает наружу только ту функциональность,
             которые нужна. Остальные скрывает.
 
@@ -539,3 +571,7 @@ Design patterns - концепции, типичные способы решен
         Template method/Шаблонный метод - определяет скелет алгоритма, перекладывывая ответственность за некоторые шаги на подклассы.
             Позволяем подклассам переопрелелять шаги, не меняя общей структуры.
         Visitor/Посетитель - добавление новых операций без изменения класса объектов, надо которыми эти операции выполняются.
+
+SOLID principles
+    Принцип единственной ответственности
+    

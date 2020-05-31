@@ -1,3 +1,9 @@
 {
-    "python.formatting.provider": "black"
+    "python.formatting.provider": "autopep8",
+    "python.testing.pytestArgs": [
+        "Yandex"
+    ],
+    "python.testing.unittestEnabled": false,
+    "python.testing.nosetestsEnabled": false,
+    "python.testing.pytestEnabled": true
 }
